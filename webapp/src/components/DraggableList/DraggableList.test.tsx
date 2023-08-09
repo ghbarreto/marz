@@ -15,9 +15,9 @@ describe('DraggableList', () => {
                 {
                     OrderID: 1234,
                     CustomerID: 1234,
-                    ProductID: 123456,
+                    ProductID: 1234,
                     OrderStatus: 'InProgress',
-                    CustomerFirstName: 'Test3',
+                    CustomerFirstName: 'first_name1',
                     CustomerLastName: 'McTest3',
                     ProductName: 'Shoes',
                     ProductPhotoURL:
@@ -26,9 +26,9 @@ describe('DraggableList', () => {
                 {
                     OrderID: 1235,
                     CustomerID: 1235,
-                    ProductID: 123456,
+                    ProductID: 1235,
                     OrderStatus: 'InProgress',
-                    CustomerFirstName: 'Test3',
+                    CustomerFirstName: 'first_name2',
                     CustomerLastName: 'McTest3',
                     ProductName: 'Shoes',
                     ProductPhotoURL:
@@ -37,9 +37,9 @@ describe('DraggableList', () => {
                 {
                     OrderID: 1236,
                     CustomerID: 1236,
-                    ProductID: 123456,
+                    ProductID: 1236,
                     OrderStatus: 'InProgress',
-                    CustomerFirstName: 'Test3',
+                    CustomerFirstName: 'first_name3',
                     CustomerLastName: 'McTest3',
                     ProductName: 'Shoes',
                     ProductPhotoURL:
@@ -54,8 +54,8 @@ describe('DraggableList', () => {
         );
         expect(screen.getByTestId(`droppable-container-${ID}`)).toBeInTheDocument();
         expect(screen.getByTestId(`droppable-title-${ID}`)).toBeInTheDocument();
-        expect(screen.getByText(`1234`)).toBeInTheDocument();
-        expect(screen.getByText(`1235`)).toBeInTheDocument();
-        expect(screen.getByText(`1236`)).toBeInTheDocument();
+        expect(screen.getByText(/first_name1/g)).toBeInTheDocument();
+        expect(screen.getByText(/first_name2/g)).toBeInTheDocument();
+        expect(screen.getByText(/first_name3/g)).toBeInTheDocument();
     });
 });
