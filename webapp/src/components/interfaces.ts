@@ -15,10 +15,13 @@ export interface OrderData {
     Queued: Order[];
     InProgress: Order[];
     QA: Order[];
+    Complete: Order[];
+    Cancelled: Order[];
 }
 
 export interface DraggableItemProps extends Order {
     draggableProvided: DraggableProvided;
+    listTitle: string;
     removeOrder: (order: Order) => void;
 }
 

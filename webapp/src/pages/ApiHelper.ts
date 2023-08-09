@@ -8,6 +8,8 @@ const getInPipelineData = async () => {
         Queued: [],
         InProgress: [],
         QA: [],
+        Cancelled: [],
+        Complete: [],
     };
     let errorOccured = false;
     try {

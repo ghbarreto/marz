@@ -19,17 +19,23 @@ interface IdList {
     '0': string;
     '1': string;
     '2': string;
+    '3': string;
+    '4': string;
 }
 
 const ID_LIST_MAP: IdList = {
     '0': 'Queued',
     '1': 'InProgress',
     '2': 'QA',
+    '3': 'Cancelled',
+    '4': 'Complete',
 };
 
 const HomePage = () => {
     const [loadingState, setLoadingState] = useState(DATA_STATES.waiting);
-    const [data, setData] = useState({ Queued: [], InProgress: [], QA: [] } as OrderData | any);
+    const [data, setData] = useState({ Queued: [], InProgress: [], QA: [], Cancelled: [], Complete: [] } as
+        | OrderData
+        | any);
     const [err, setErr] = useState(false);
     const [successfullyUpdated, setSuccessfullyUpdated] = useState(false);
 
@@ -37,8 +43,6 @@ const HomePage = () => {
         deferFn: ([body]) => postUpdateCards(body),
         onResolve: d => {
             const { sourceKey, sourceIndex, OrderStatus, destIndex } = d.data.data;
-            console.log(sourceKey, sourceIndex);
-            console.log(data[sourceIndex]);
 
             const sourceClone = Array.from(data[sourceKey]);
             const destClone: any = Array.from(data[OrderStatus]);
@@ -55,7 +59,6 @@ const HomePage = () => {
             setSuccessfullyUpdated(true);
         },
         onReject: d => {
-            console.log(d);
             setSuccessfullyUpdated(false);
             setErr(true);
         },
@@ -70,14 +73,30 @@ const HomePage = () => {
 
     const updateOrder = async (order: Order) => {
         setLoadingState(DATA_STATES.waiting);
-        const newOrderStatus = order.OrderStatus === 'QA' ? 'Complete' : 'Cancelled';
+
+        let newOrderStatus: keyof OrderData;
+
+        switch (order.OrderStatus) {
+            case 'QA':
+                newOrderStatus = 'Complete';
+                break;
+            case 'Cancelled':
+                newOrderStatus = 'QA';
+                break;
+            default:
+                newOrderStatus = 'Cancelled';
+                break;
+        }
+
         const orderStatusUpdated = await updateOrderStatus(order, newOrderStatus);
         if (orderStatusUpdated) {
             const columnKey = order.OrderStatus as keyof OrderData;
-            setData({
-                ...data,
+            order.OrderStatus = newOrderStatus;
+            setData((d: OrderData) => ({
+                ...d,
                 [columnKey]: data[columnKey].filter((otherOrder: Order) => otherOrder.OrderID !== order.OrderID),
-            });
+                [newOrderStatus]: [...d[newOrderStatus], order],
+            }));
         }
         setLoadingState(DATA_STATES.loaded);
     };
@@ -90,7 +109,7 @@ const HomePage = () => {
 
         const destKey = ID_LIST_MAP[destination.droppableId as keyof IdList] as keyof OrderData;
         const destIndex = destination.index;
-        console.log(sourceKey);
+
         if (sourceKey === destKey) {
             const sourceClone = Array.from(data[sourceKey]);
             const [removed] = sourceClone.splice(sourceIndex, 1);
@@ -135,7 +154,7 @@ const HomePage = () => {
                         />
                         <DraggableList
                             ID="1"
-                            listTitle="In Progess"
+                            listTitle="In Progress"
                             removeOrder={(order: Order) => updateOrder(order)}
                             items={data.InProgress}
                         />
@@ -144,6 +163,18 @@ const HomePage = () => {
                             listTitle="QA"
                             removeOrder={(order: Order) => updateOrder(order)}
                             items={data.QA}
+                        />
+                        <DraggableList
+                            ID="3"
+                            listTitle="Cancelled"
+                            removeOrder={(order: Order) => updateOrder(order)}
+                            items={data.Cancelled}
+                        />
+                        <DraggableList
+                            ID="4"
+                            listTitle="Complete"
+                            removeOrder={(order: Order) => updateOrder(order)}
+                            items={data.Complete}
                         />
                     </DragDropContext>
                 </div>

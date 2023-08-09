@@ -30,11 +30,7 @@ def get_inprogress_orders():
 			Product.ProductID
 			).join(
 				Customer, on=(Orders.CustomerID == Customer.CustomerID)
-			).join(Product, on=(Orders.ProductID == Product.ProductID)).where(
-				(Orders.OrderStatus == 'Queued') |
-				(Orders.OrderStatus == 'InProgress') |
-				(Orders.OrderStatus == 'QA')
-			).dicts()
+			).join(Product, on=(Orders.ProductID == Product.ProductID)).dicts()
 		
 		orders_serialized = order_schema.dump(orders)
 	except Exception as err:
