@@ -36,6 +36,7 @@ const ProductsPage = () => {
                                         </h2>
 
                                         <div className="flex items-center">
+                                            <p>id: {product.ProductID}</p>
                                             <p className="ml-auto text-base font-medium text-green-500">
                                                 {product.ProductStatus}
                                             </p>
