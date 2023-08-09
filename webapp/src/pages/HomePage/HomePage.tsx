@@ -6,6 +6,8 @@ import Spinner from '../../components/Spinner/Spinner';
 import { Order, OrderData } from '../../components/interfaces';
 import { getInPipelineData, updateOrderStatus } from '../ApiHelper';
 import PageWrapper from '../PageWrapper';
+import { useAsync } from 'react-async';
+import { postUpdateCards } from '../../api/postKanban';
 
 const DATA_STATES = {
     waiting: 'WAITING',
@@ -27,7 +29,37 @@ const ID_LIST_MAP: IdList = {
 
 const HomePage = () => {
     const [loadingState, setLoadingState] = useState(DATA_STATES.waiting);
-    const [data, setData] = useState({ Queued: [], InProgress: [], QA: [] } as OrderData);
+    const [data, setData] = useState({ Queued: [], InProgress: [], QA: [] } as OrderData | any);
+    const [err, setErr] = useState(false);
+    const [successfullyUpdated, setSuccessfullyUpdated] = useState(false);
+
+    const { run, isPending } = useAsync({
+        deferFn: ([body]) => postUpdateCards(body),
+        onResolve: d => {
+            const { sourceKey, sourceIndex, OrderStatus, destIndex } = d.data.data;
+            console.log(sourceKey, sourceIndex);
+            console.log(data[sourceIndex]);
+
+            const sourceClone = Array.from(data[sourceKey]);
+            const destClone: any = Array.from(data[OrderStatus]);
+
+            const [removed] = sourceClone.splice(sourceIndex, 1);
+            destClone.splice(destIndex, 0, removed);
+            destClone[destIndex].OrderStatus = OrderStatus;
+            setData({
+                ...data,
+                [sourceKey]: sourceClone,
+                [OrderStatus]: destClone,
+            });
+            setErr(false);
+            setSuccessfullyUpdated(true);
+        },
+        onReject: d => {
+            console.log(d);
+            setSuccessfullyUpdated(false);
+            setErr(true);
+        },
+    });
 
     const getOrders = async () => {
         setLoadingState(DATA_STATES.waiting);
@@ -58,22 +90,19 @@ const HomePage = () => {
 
         const destKey = ID_LIST_MAP[destination.droppableId as keyof IdList] as keyof OrderData;
         const destIndex = destination.index;
-
+        console.log(sourceKey);
         if (sourceKey === destKey) {
             const sourceClone = Array.from(data[sourceKey]);
             const [removed] = sourceClone.splice(sourceIndex, 1);
             sourceClone.splice(destIndex, 0, removed);
             setData({ ...data, [sourceKey]: sourceClone });
         } else {
-            const sourceClone = Array.from(data[sourceKey]);
-            const destClone = Array.from(data[destKey]);
-            const [removed] = sourceClone.splice(sourceIndex, 1);
-            destClone.splice(destIndex, 0, removed);
-            destClone[destIndex].OrderStatus = destKey;
-            setData({
-                ...data,
-                [sourceKey]: sourceClone,
-                [destKey]: destClone,
+            return run({
+                OrderID: result.draggableId,
+                OrderStatus: destKey,
+                sourceKey,
+                destIndex,
+                sourceIndex,
             });
         }
     };
@@ -83,7 +112,7 @@ const HomePage = () => {
     }, []);
 
     let content;
-    if (loadingState === DATA_STATES.waiting)
+    if (loadingState === DATA_STATES.waiting || isPending)
         content = (
             <div className="flex flex-row justify-center w-full pt-4" data-testid="loading-spinner-container">
                 <Spinner />
@@ -91,28 +120,34 @@ const HomePage = () => {
         );
     else if (loadingState === DATA_STATES.loaded)
         content = (
-            <div className="flex flex-row justify-center w-full pt-4" data-testid="pipeline-container">
-                <DragDropContext onDragEnd={handleDragEnd}>
-                    <DraggableList
-                        ID="0"
-                        listTitle="Queued"
-                        removeOrder={(order: Order) => updateOrder(order)}
-                        items={data.Queued}
-                    />
-                    <DraggableList
-                        ID="1"
-                        listTitle="In Progess"
-                        removeOrder={(order: Order) => updateOrder(order)}
-                        items={data.InProgress}
-                    />
-                    <DraggableList
-                        ID="2"
-                        listTitle="QA"
-                        removeOrder={(order: Order) => updateOrder(order)}
-                        items={data.QA}
-                    />
-                </DragDropContext>
-            </div>
+            <>
+                {err && <div className="flex justify-center text-red-400">Error occured reordeing orders</div>}
+                {successfullyUpdated && (
+                    <div className="flex justify-center text-green-400">Successfully reordered orders</div>
+                )}
+                <div className="flex flex-row justify-center w-full pt-4" data-testid="pipeline-container">
+                    <DragDropContext onDragEnd={handleDragEnd}>
+                        <DraggableList
+                            ID="0"
+                            listTitle="Queued"
+                            removeOrder={(order: Order) => updateOrder(order)}
+                            items={data.Queued}
+                        />
+                        <DraggableList
+                            ID="1"
+                            listTitle="In Progess"
+                            removeOrder={(order: Order) => updateOrder(order)}
+                            items={data.InProgress}
+                        />
+                        <DraggableList
+                            ID="2"
+                            listTitle="QA"
+                            removeOrder={(order: Order) => updateOrder(order)}
+                            items={data.QA}
+                        />
+                    </DragDropContext>
+                </div>
+            </>
         );
     else
         content = (

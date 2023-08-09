@@ -13,7 +13,7 @@ const DraggableItem = (props: DraggableItemProps) => (
     >
         <div className="block">
             <div className="font-bold" data-testid={`draggable-customerID-${props.OrderID}`}>
-                Name {props.CustomerFirstName} {props.CustomerLastName}
+                Name {props.CustomerFirstName} {props.CustomerLastName} ID: {props.OrderID}
             </div>
             <img className="h-20 w-20 " src={props.ProductPhotoURL} alt={`${props.ProductName}`} />
             <span data-testid={`draggable-productID-${props.OrderID}`}>{props.ProductName}</span>

@@ -57,3 +57,16 @@ def post_update_order_status():
 	except Exception as err:
 		return { 'message': str(err) }, 500
 	return { 'message': f'{order["OrderID"]} updated successfully!' }, 200
+
+@orders_blueprint.route('/update_cards', methods=['POST'])
+def post_update_cards():
+	order_schema = OrderSchema()
+	json_data = request.get_json()
+	try:
+		order = order_schema.load({'OrderID': int(json_data['OrderID']), 'OrderStatus': json_data['OrderStatus']})
+		Orders.update({ Orders.OrderStatus:json_data['OrderStatus'] }).where(Orders.OrderID == order['OrderID']).execute()
+		return { 'message': f'{order["OrderID"]} updated successfully!', 'data': json_data }, 200
+	except ValidationError as err:
+		return { 'message': err.messages }, 422
+	except Exception as err:
+		return { 'message': str(err) }, 500

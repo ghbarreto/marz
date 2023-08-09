@@ -15,7 +15,6 @@ const getInPipelineData = async () => {
         if (response?.status === 200) {
             const { data } = response.data;
             data.forEach((order: Order) => {
-                console.log(order.OrderStatus);
                 orderData[order.OrderStatus as keyof OrderData].push(order);
             });
         } else {
