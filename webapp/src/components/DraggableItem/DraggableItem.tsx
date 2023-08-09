@@ -8,15 +8,44 @@ const DraggableItem = (props: DraggableItemProps) => (
         ref={props.draggableProvided.innerRef}
         {...props.draggableProvided.draggableProps}
         {...props.draggableProvided.dragHandleProps}
-        className='bg-neutral-300 flex items-center justify-between mt-1 p-3 rounded w-full'
+        className="bg-neutral-300 flex items-center justify-between mt-1 p-3 rounded w-full"
         data-testid={`draggable-container-${props.OrderID}`}
     >
-        <span data-testid={`draggable-customerID-${props.OrderID}`}>{ props.CustomerID }</span>
-        <span data-testid={`draggable-productID-${props.OrderID}`}>{ props.ProductID }</span>
+        <div className="block">
+            <div className="font-bold" data-testid={`draggable-customerID-${props.OrderID}`}>
+                Name {props.CustomerFirstName} {props.CustomerLastName}
+            </div>
+            <img className="h-20 w-20 " src={props.ProductPhotoURL} alt={`${props.ProductName}`} />
+            <span data-testid={`draggable-productID-${props.OrderID}`}>{props.ProductName}</span>
+        </div>
+
         {(() => {
-            const { OrderID, CustomerID, ProductID, OrderStatus, removeOrder } = props;
+            const {
+                OrderID,
+                CustomerID,
+                ProductID,
+                OrderStatus,
+                CustomerFirstName,
+                ProductName,
+                ProductPhotoURL,
+                CustomerLastName,
+                removeOrder,
+            } = props;
             return (
-                <button onClick={() => removeOrder({ OrderID, CustomerID, ProductID, OrderStatus })}>
+                <button
+                    onClick={() =>
+                        removeOrder({
+                            OrderID,
+                            CustomerID,
+                            ProductID,
+                            OrderStatus,
+                            CustomerFirstName,
+                            ProductName,
+                            ProductPhotoURL,
+                            CustomerLastName,
+                        })
+                    }
+                >
                     <FontAwesomeIcon
                         icon={OrderStatus === 'QA' ? faSquareCheck : faSquareXmark}
                         className={`${OrderStatus === 'QA' ? 'text-green-600' : 'text-red-600'} fa-lg`}

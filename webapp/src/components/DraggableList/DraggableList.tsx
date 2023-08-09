@@ -5,27 +5,21 @@ import { DraggableListProps } from '../interfaces';
 
 const DraggableList = (props: DraggableListProps) => (
     <Droppable droppableId={props.ID}>
-        {(provided) => (
+        {provided => (
             <div
                 ref={provided.innerRef}
-                className='bg-neutral-500 p-4 w-full'
+                className="bg-neutral-500 p-4 w-full"
                 data-testid={`droppable-container-${props.ID}`}
             >
-                <h5
-                    className='font-bold text-white'
-                    data-testid={`droppable-title-${props.ID}`}
-                >
+                <h5 className="font-bold text-white" data-testid={`droppable-title-${props.ID}`}>
                     {props.listTitle}
                 </h5>
-                {
-                    props.items.length > 0 && props.items.map((item, index) => (
-                        <Draggable
-                            key={item.OrderID}
-                            draggableId={`${item.OrderID}`}
-                            index={index}
-                        >
+                {props.items.length > 0 &&
+                    props.items.map((item, index) => (
+                        <Draggable key={item.OrderID} draggableId={`${item.OrderID}`} index={index}>
                             {(provided: DraggableProvided) => (
                                 <DraggableItem
+                                    {...item}
                                     OrderID={item.OrderID}
                                     CustomerID={item.CustomerID}
                                     ProductID={item.ProductID}
@@ -35,8 +29,7 @@ const DraggableList = (props: DraggableListProps) => (
                                 />
                             )}
                         </Draggable>
-                    ))
-                }
+                    ))}
                 {provided.placeholder}
             </div>
         )}

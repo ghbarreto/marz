@@ -15,6 +15,7 @@ const getInPipelineData = async () => {
         if (response?.status === 200) {
             const { data } = response.data;
             data.forEach((order: Order) => {
+                console.log(order.OrderStatus);
                 orderData[order.OrderStatus as keyof OrderData].push(order);
             });
         } else {
@@ -28,13 +29,17 @@ const getInPipelineData = async () => {
     return { orderData, errorOccured };
 };
 
-const UPDATE_STATUS_URL = '/api/orders/update_status';
+const UPDATE_STATUS_URL = 'http://localhost:5001/api/orders/update_status';
 
 const updateOrderStatus = async (order: Order, newOrderStatus: string) => {
-    const updatedOrder = { ...order, OrderStatus: newOrderStatus };
     let orderStatusUpdated = false;
     try {
-        const response = await axios.post(UPDATE_STATUS_URL, updatedOrder);
+        const response = await axios.post(UPDATE_STATUS_URL, {
+            OrderStatus: newOrderStatus,
+            OrderID: order.OrderID,
+            CustomerID: order.CustomerID,
+            ProductID: order.ProductID,
+        });
         if (response?.status === 200) orderStatusUpdated = true;
         else {
             const { message } = response.data;

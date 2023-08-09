@@ -83,6 +83,5 @@ class Orders(BaseModel):
     OrderStatus = EnumField(ORDER_STATUSES_SET, null=False)
     ProductID = ForeignKeyField(Product, field='ProductID', null=False, column_name='ProductID')
     CustomerID = ForeignKeyField(Customer, field='CustomerID', null=False, column_name='CustomerID')
-    
     class Meta:
         table_name = 'Orders'

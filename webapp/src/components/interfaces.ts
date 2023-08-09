@@ -5,15 +5,19 @@ export interface Order {
     CustomerID: number;
     ProductID: number;
     OrderStatus: string;
+    CustomerFirstName: string;
+    ProductName: string;
+    ProductPhotoURL: string;
+    CustomerLastName: string;
 }
 
 export interface OrderData {
-  Queued: Order[],
-  InProgress: Order[],
-  QA: Order[],
+    Queued: Order[];
+    InProgress: Order[];
+    QA: Order[];
 }
 
-export interface DraggableItemProps extends Order{
+export interface DraggableItemProps extends Order {
     draggableProvided: DraggableProvided;
     removeOrder: (order: Order) => void;
 }
@@ -23,7 +27,7 @@ export interface DraggableListProps {
     listTitle: string;
     removeOrder: (order: Order) => void;
     items: Order[];
-};
+}
 
 export interface HeaderLink {
     label: string;
